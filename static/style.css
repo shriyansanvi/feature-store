@@ -1,0 +1,406 @@
+/* --- style.css (Complete New Version) --- */
+
+/* --- Global & Layout --- */
+:root {
+    --sidebar-width: 240px;
+    --header-height: 60px;
+    --primary-color: #007bff;
+    --primary-light: #e6f7ff;
+    --border-color: #dee2e6; /* Changed for better visibility */
+    --text-color: #333;
+    --text-light: #6c757d; /* Slightly adjusted light text */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f7f9fc; /* Light background */
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: 100vh;
+}
+
+/* --- Sidebar Navigation --- */
+.sidebar {
+    background: #2c3e50; /* Dark sidebar */
+    color: white;
+    padding: 20px;
+    grid-row: 1;
+    grid-column: 1;
+    display: flex; /* Added for footer positioning */
+    flex-direction: column; /* Added for footer positioning */
+}
+.sidebar-header {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 10px 0 20px 0;
+    border-bottom: 1px solid #4a5a6a;
+}
+.sidebar-header i {
+    margin-right: 10px;
+}
+.sidebar-nav {
+    list-style: none;
+    padding: 20px 0;
+    margin: 0;
+    flex-grow: 1; /* Pushes footer down */
+}
+.sidebar-nav li {
+    margin-bottom: 10px;
+}
+.sidebar-nav a {
+    display: block;
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    transition: background 0.2s ease;
+}
+.sidebar-nav a:hover {
+    background: #34495e;
+}
+.sidebar-nav a.active {
+    background: var(--primary-color);
+    color: white;
+    font-weight: bold;
+}
+.sidebar-nav a i {
+    margin-right: 12px;
+    width: 20px; /* Aligns icons */
+}
+
+/* --- Main Content Area --- */
+.main-content {
+    grid-row: 1;
+    grid-column: 2;
+    overflow-y: auto;
+    padding: 30px;
+}
+.main-content h1 {
+    font-size: 2.5em;
+    color: var(--text-color);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-top: 0; /* Added */
+}
+.main-content h2 {
+    margin-top: 30px; /* Added spacing */
+    color: #495057; /* Slightly darker heading */
+}
+
+/* --- Stat Cards (Home Page) --- */
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive */
+    gap: 20px;
+    margin-top: 20px;
+}
+.stat-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color); /* Subtle border */
+}
+.stat-card h3 {
+    margin-top: 0;
+    color: var(--text-light);
+    font-size: 0.9em; /* Slightly smaller */
+    text-transform: uppercase;
+    font-weight: 600; /* Bolder */
+}
+.stat-card p {
+    font-size: 2.2em; /* Slightly smaller */
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 10px 0 0 0;
+}
+
+/* --- Forms (Explorer & Simulator) & Cards --- */
+.form-container, .card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color); /* Add border */
+    margin-top: 20px;
+}
+.input-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center; /* Align items vertically */
+}
+.input-group label {
+    font-weight: 600; /* Bolder label */
+    padding-top: 0; /* Remove top padding */
+    width: 150px; /* Fixed width for labels */
+    color: var(--text-light);
+    font-size: 0.9em;
+}
+.input-group input[type="number"], .input-group input[type="text"], .input-group input[type="password"] {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+}
+button {
+    padding: 12px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background 0.2s ease;
+}
+button i { /* Style icons inside buttons */
+    margin-right: 8px;
+}
+button:hover { background: #0056b3; }
+
+/* --- Transaction Simulator --- */
+.payment-status-box {
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+}
+.status-processing { background: #e6f7ff; border: 1px solid #91d5ff; color: #0050b3; }
+.status-approved { background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d; }
+.status-declined { background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; }
+
+/* --- Explorer Page --- */
+.explorer-results {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+pre {
+    background: #f8f9fa; /* Lighter background */
+    color: #212529; /* Darker text */
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    height: 100%;
+    border: 1px solid var(--border-color);
+    font-size: 0.9em;
+}
+.log-container {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    height: 300px; /* Fixed height for scrolling */
+    overflow-y: auto;
+    border: 1px solid var(--border-color); /* Use border color */
+    padding: 10px;
+    border-radius: 5px;
+    background: #fff; /* White background */
+}
+.log-container li {
+    padding: 8px;
+    border-bottom: 1px dashed #eee;
+    font-size: 0.9em; /* Slightly smaller text */
+    color: var(--text-light);
+}
+.log-container li:last-child { border-bottom: none; }
+
+/* --- Explorer Page Data Table --- */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.data-table tr {
+    border-bottom: 1px solid #f0f0f0;
+}
+.data-table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+.data-table tr:last-child {
+    border-bottom: none;
+}
+.data-table td:first-child {
+    font-weight: 600; /* Bolder key */
+    color: var(--text-light);
+    font-size: 0.9em;
+}
+.data-table td:last-child {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace; /* Nicer mono font */
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.0em; /* Slightly smaller value */
+    text-align: right;
+}
+
+/* --- Logout Button (Sidebar) --- */
+.sidebar-footer {
+    border-top: 1px solid #4a5a6a;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+.logout-btn {
+    display: block;
+    width: 100%;
+    background: #dc3545;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    text-align: left;
+    transition: background 0.2s ease;
+}
+.logout-btn i {
+    margin-right: 12px;
+}
+.logout-btn:hover {
+    background: #c82333;
+}
+
+/* --- NEW LOGIN PAGE STYLES (Admin Panel Theme) --- */
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f7f9fc; /* Standard app background */
+    /* Reset the grid layout from the main body */
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    min-height: 100vh; /* Ensure it takes full height */
+}
+.login-container {
+    background: #fff;
+    padding: 40px; /* More padding */
+    border-radius: 8px; /* Use same rounding as cards */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Slightly stronger shadow */
+    width: 400px; /* Wider */
+    text-align: center;
+    border: 1px solid var(--border-color); /* Add border */
+}
+.login-container h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    font-size: 1.8em; /* Larger title */
+    font-weight: 600; /* Less bold */
+}
+.login-container h2 i {
+    color: var(--primary-color); /* Match sidebar icon color */
+    margin-right: 10px;
+}
+.login-container p {
+    color: var(--text-light); /* Standard light text color */
+    margin-bottom: 30px; /* More space */
+    font-size: 1.0em;
+}
+.login-container .input-group {
+    flex-direction: column;
+    align-items: stretch; /* Make inputs full width */
+    margin-bottom: 20px;
+    text-align: left; /* Align labels left */
+}
+.login-container label {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 8px; /* More space below label */
+}
+.login-container input {
+    width: 100%;
+    box-sizing: border-box; /* Fixes padding issue */
+    padding: 12px; /* Match other inputs */
+    border: 1px solid var(--border-color); /* Match other inputs */
+    border-radius: 5px; /* Match other inputs */
+    font-size: 1em; /* Match other inputs */
+}
+.login-container button {
+    width: 100%;
+    margin-top: 15px; /* More space above button */
+    padding: 15px; /* Make button slightly larger */
+    font-size: 1.1em; /* Match sidebar font size */
+}
+#error-msg {
+    color: #dc3545;
+    margin-top: 15px;
+    font-size: 0.9em;
+    height: 1.2em; /* Prevents layout jump */
+}
+
+/* --- Chart.js Styles (Analytics Page) --- */
+.chart-container {
+    width: 100%;
+    margin: 0 auto;
+}
+/* --- New Settings Page Styles --- */
+.settings-section {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+.settings-section h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.settings-row label {
+    font-weight: 600;
+    color: #555;
+}
+.settings-desc {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: -5px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider { background-color: #2196F3; }
+input:checked + .slider:before { transform: translateX(26px); }
+
+/* Range Slider */
+input[type=range] {
+    width: 100%;
+    max-width: 300px;
+}

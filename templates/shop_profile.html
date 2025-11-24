@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders - ModernStore</title>
+    <link rel="stylesheet" href="/static/shop_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="shop-container">
+        <header class="shop-header">
+            <a href="/shop" class="shop-logo">ModernStore.</a>
+            <nav class="shop-nav">
+                <a href="/shop">Home</a>
+                <a href="#" onclick="logout()">Sign Out</a>
+            </nav>
+        </header>
+
+        <main style="margin-top: 40px;">
+            <div class="profile-header">
+                <h1 id="welcome-msg">Welcome</h1>
+                <p>Here is your recent order history.</p>
+            </div>
+
+            <div class="order-history-card">
+                <h3>Order History</h3>
+                <table class="shop-table" id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3">Loading history...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const userId = localStorage.getItem('shopUser');
+        if (!userId) window.location.href = '/shop/login';
+
+        document.getElementById('welcome-msg').textContent = `Welcome, User ${userId}`;
+
+        async function loadHistory() {
+            try {
+                // Use the existing API endpoint!
+                const response = await fetch(`/transactions/all/${userId}`);
+                const data = await response.json();
+                
+                const tbody = document.querySelector('#history-table tbody');
+                tbody.innerHTML = '';
+
+                if (data.transactions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3">No orders found.</td></tr>';
+                    return;
+                }
+
+                data.transactions.forEach(tx => {
+                    const row = document.createElement('tr');
+                    const date = new Date(tx.timestamp).toLocaleDateString() + ' ' + new Date(tx.timestamp).toLocaleTimeString();
+                    
+                    row.innerHTML = `
+                        <td>${date}</td>
+                        <td><span class="badge-success">Delivered</span></td>
+                        <td style="font-weight:bold;">$${tx.amount.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('shopUser');
+            window.location.href = '/shop/login';
+        }
+
+        loadHistory();
+    </script>
+</body>
+</html>

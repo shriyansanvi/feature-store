@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ModernStore | Premium Electronics & Gear</title>
+    <link rel="stylesheet" href="/static/shop_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items" id="cart-items">
+            </div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Subtotal</span>
+                <span id="cart-total">$0.00</span>
+            </div>
+            <a href="/shop/checkout" class="checkout-btn">Checkout Now</a>
+        </div>
+    </div>
+
+    <div class="top-bar">
+        FREE SHIPPING ON ALL ORDERS OVER $100 • WORLDWIDE DELIVERY
+    </div>
+
+    <header class="shop-header">
+        <div class="shop-container header-inner">
+            <a href="/shop" class="shop-logo">ModernStore.</a>
+            <nav class="shop-nav">
+                <a href="#">New Arrivals</a>
+                <a href="#">Tech</a>
+                <a href="#">Lifestyle</a>
+                <a href="#">Sale</a>
+            </nav>
+        <div class="header-icons">
+            <i class="fas fa-search"></i>
+    
+            <a href="/shop/profile" title="My Orders">
+            <i class="fas fa-user"></i>
+            </a>
+
+    <div class="cart-icon-wrap" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-badge" id="cart-badge">0</span>
+    </div>
+</div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Level Up Your Setup</h1>
+            <p>Discover the latest in premium tech and lifestyle gear.</p>
+            <a href="#products" class="hero-btn">Shop Collection</a>
+        </div>
+    </section>
+
+    <main class="shop-container" id="products">
+        <h2 class="section-title">Trending Now</h2>
+        
+        <div class="product-grid">
+            
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500" alt="Sneaker">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Footwear</div>
+                    <h3 class="product-title">Air Strike Red</h3>
+                    <div class="product-price">$120.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('Air Strike Red', 120.00)">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500" alt="Headphones">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Audio</div>
+                    <h3 class="product-title">Sonic Bass Pro</h3>
+                    <div class="product-price">$250.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('Sonic Bass Pro', 250.00)">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500" alt="Laptop">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Computers</div>
+                    <h3 class="product-title">MacBook Pro 16"</h3>
+                    <div class="product-price">$1,800.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('MacBook Pro 16', 1800.00)">Add to Cart</button>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500" alt="Watch">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Accessories</div>
+                    <h3 class="product-title">Minimalist Watch</h3>
+                    <div class="product-price">$85.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('Minimalist Watch', 85.00)">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500" alt="Camera">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Photography</div>
+                    <h3 class="product-title">DSLR Camera Kit</h3>
+                    <div class="product-price">$1,200.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('DSLR Camera Kit', 1200.00)">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1587829741301-dc798b91add1?w=500" alt="Keyboard">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Gaming</div>
+                    <h3 class="product-title">Mech Keyboard RGB</h3>
+                    <div class="product-price">$150.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('Mech Keyboard RGB', 150.00)">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1592840496694-26d035b52b48?w=500" alt="Controller">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Gaming</div>
+                    <h3 class="product-title">Pro Controller</h3>
+                    <div class="product-price">$60.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('Pro Controller', 60.00)">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500" alt="Backpack">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Lifestyle</div>
+                    <h3 class="product-title">Urban Backpack</h3>
+                    <div class="product-price">$45.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('Urban Backpack', 45.00)">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500" alt="Monitor">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Computers</div>
+                    <h3 class="product-title">4K Ultra Monitor</h3>
+                    <div class="product-price">$499.00</div>
+                    <button class="add-cart-btn" onclick="addToCart('4K Ultra Monitor', 499.00)">Add to Cart</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="shop-footer">
+        <div class="shop-container footer-grid">
+            <div class="footer-col">
+                <h4>Shop</h4>
+                <ul>
+                    <li>New Arrivals</li>
+                    <li>Best Sellers</li>
+                    <li>Sale</li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li>Help Center</li>
+                    <li>Shipping</li>
+                    <li>Returns</li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li>About Us</li>
+                    <li>Careers</li>
+                    <li>Contact</li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Stay Connected</h4>
+                <ul>
+                    <li>Instagram</li>
+                    <li>Twitter</li>
+                    <li>Facebook</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2025 ModernStore Inc. Powered by Real-time Feature Store.
+        </div>
+    </footer>
+
+    <script src="/static/shop_core.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/auth.js"></script>
+    
+    <title>Admin - User Management</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-server"></i> Feature Store</div>
+        <ul class="sidebar-nav">
+            <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="/explorer"><i class="fas fa-search"></i> User Explorer</a></li>
+            <li><a href="/analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="/users" class="active"><i class="fas fa-users-cog"></i> User Management</a></li>
+            <li><a href="/settings"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="/logs"><i class="fas fa-clipboard-list"></i> System Logs</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        <h1>User Management</h1>
+        <p>A (simulated) list of all users in the system.</p>
+        
+        <div class="card" style="margin-top: 20px;">
+            <h3>All Users</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <td>User ID</td>
+                        <td>Status</td>
+                        <td>Total Spent</td>
+                        <td>Actions</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>User 123</td>
+                        <td><span class="status-connected">Active</span></td>
+                        <td>$6683.21</td>
+                        <td><button style="background: #ffc107; font-size: 0.9em; padding: 5px 10px;">Edit</button></td>
+                    </tr>
+                    <tr>
+                        <td>User 245</td>
+                        <td><span class="status-connected">Active</span></td>
+                        <td>$4210.50</td>
+                        <td><button style="background: #ffc107; font-size: 0.9em; padding: 5px 10px;">Edit</button></td>
+                    </tr>
+                    <tr>
+                        <td>User 310</td>
+                        <td><span class="status-disconnected">Frozen</span></td>
+                        <td>$8100.10</td>
+                        <td><button style="background: #ffc107; font-size: 0.9em; padding: 5px 10px;">Edit</button></td>
+                    </tr>
+                    <tr>
+                        <td>User 415</td>
+                        <td><span class="status-connected">Active</span></td>
+                        <td>$1523.00</td>
+                        <td><button style="background: #ffc107; font-size: 0.9em; padding: 5px 10px;">Edit</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

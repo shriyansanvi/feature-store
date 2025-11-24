@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/auth.js"></script>
+    <title>Admin - Settings</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-server"></i> Feature Store</div>
+        <ul class="sidebar-nav">
+            <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="/explorer"><i class="fas fa-search"></i> User Explorer</a></li>
+            <li><a href="/analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="/users"><i class="fas fa-users-cog"></i> User Management</a></li>
+            <li><a href="/settings" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="/logs"><i class="fas fa-clipboard-list"></i> System Logs</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        <h1>System Configuration</h1>
+        
+        <div class="card">
+            
+            <div class="settings-section">
+                <h3><i class="fas fa-shield-alt"></i> Fraud Detection Rules</h3>
+                
+                <div class="settings-row">
+                    <div>
+                        <label>Active Fraud Monitoring</label>
+                        <span class="settings-desc">Enable/Disable real-time transaction blocking.</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="settings-row">
+                    <div>
+                        <label>SMS Alerts for Admin</label>
+                        <span class="settings-desc">Send SMS when high-risk fraud is detected.</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div>
+                    <label>Risk Threshold Multiplier (Current: 5x)</label>
+                    <span class="settings-desc">Flag transactions if amount > (Average * Multiplier).</span>
+                    <input type="range" min="1" max="20" value="5" id="risk-slider">
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3><i class="fas fa-database"></i> Database & Cache</h3>
+                
+                <div class="settings-row">
+                    <div>
+                        <label>Auto-Archive Logs</label>
+                        <span class="settings-desc">Move logs older than 30 days to cold storage.</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row">
+                    <div>
+                        <label>Redis Cache TTL</label>
+                        <span class="settings-desc">Time (in seconds) to keep real-time features in memory.</span>
+                    </div>
+                    <input type="number" value="3600" style="width: 100px; padding: 5px;">
+                </div>
+            </div>
+
+            <button id="save-btn"><i class="fas fa-save"></i> Save Configuration</button>
+            <p id="save-status" style="color: green; font-weight: bold; margin-top: 15px;"></p>
+        </div>
+    </main>
+    
+    <script>
+        const saveBtn = document.getElementById('save-btn');
+        const saveStatus = document.getElementById('save-status');
+
+        saveBtn.addEventListener('click', () => {
+            saveStatus.textContent = "Applying changes to Feature Store...";
+            setTimeout(() => {
+                saveStatus.textContent = "✅ Configuration updated successfully!";
+                setTimeout(() => { saveStatus.textContent = ""; }, 3000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

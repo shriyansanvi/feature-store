@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/auth.js"></script>
+    
+    <title>Admin - System Logs</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-server"></i> Feature Store</div>
+        <ul class="sidebar-nav">
+            <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="/explorer"><i class="fas fa-search"></i> User Explorer</a></li>
+            <li><a href="/analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="/users"><i class="fas fa-users-cog"></i> User Management</a></li>
+            <li><a href="/settings"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="/logs" class="active"><i class="fas fa-clipboard-list"></i> System Logs</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        <h1>System Event Logs</h1>
+        <p>(This is a static, simulated log for demonstration.)</p>
+        
+        <div class="card" style="margin-top: 20px;">
+            <h3>Live Log Stream</h3>
+            <ul class="log-container">
+                <li>[INFO] API Server started successfully on port 8000.</li>
+                <li>[INFO] Connection to PostgreSQL (Offline Store) established.</li>
+                <li>[INFO] Connection to Redis (Online Store) established.</li>
+                <li>[WARN] User 123: Fraud check DECLINED transaction of $5000.00.</li>
+                <li>[INFO] User 123: Transaction of $50.00 Approved.</li>
+                <li>[INFO] User 245: Transaction of $120.50 Approved.</li>
+                <li>[ERROR] Failed to connect to email server. Notifications offline.</li>
+                <li>[INFO] User 310: Transaction of $85.00 Approved.</li>
+            </ul>
+        </div>
+    </main>
+</body>
+</html>

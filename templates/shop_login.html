@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In - ModernStore</title>
+    <link rel="stylesheet" href="/static/shop_style.css">
+    <style>
+        /* Specific styles just for the shop login page */
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .shop-login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+        .brand-title {
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #000;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        .shop-login-btn {
+            width: 100%;
+            background: #000;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .shop-login-btn:hover { background: #333; }
+        .hint { margin-top: 20px; font-size: 0.85em; color: #888; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div class="shop-login-card">
+        <div class="brand-title">ModernStore.</div>
+        <div class="subtitle">Welcome back! Please enter your ID.</div>
+
+        <input type="number" id="login-id" class="login-input" placeholder="Enter User ID (e.g. 123)">
+        <button id="btn-continue" class="shop-login-btn">Continue Shopping</button>
+
+    </div>
+
+    <script>
+        // Logic to log the user into the SHOP (LocalStorage)
+        const btn = document.getElementById('btn-continue');
+        const input = document.getElementById('login-id');
+
+        // If already logged in, go to shop
+        if(localStorage.getItem('shopUser')) {
+            window.location.href = '/shop';
+        }
+
+        btn.addEventListener('click', () => {
+            const userId = input.value;
+            if (userId) {
+                // 1. Save User ID to browser storage
+                localStorage.setItem('shopUser', userId);
+                // 2. Redirect to the Shop Home
+                window.location.href = '/shop';
+            } else {
+                alert("Please enter a User ID to continue.");
+            }
+        });
+    </script>
+</body>
+</html>

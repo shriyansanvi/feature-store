@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+redis
+psycopg2-binary
+jinja2
+python-multipart
+python-dotenv
+requests

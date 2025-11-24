@@ -1,0 +1,24 @@
+Python
+
+pycache/
+*.py[cod]
+*$py.class
+
+Virtual Environment
+
+venv/
+env/
+
+Environment Variables (Secrets)
+
+.env
+
+Database dumps (optional)
+
+*.sql
+*.db
+
+IDE settings
+
+.vscode/
+.idea/

@@ -9,6 +9,10 @@ from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
+from dotenv import load_dotenv 
+
+# 1. Load Environment Variables
+load_dotenv()
 
 class TransactionRequest(BaseModel):
     user_id: int
@@ -16,6 +20,7 @@ class TransactionRequest(BaseModel):
 
 app = FastAPI(title="Real-time Feature Store API")
 
+# CORS
 origins = ["*", "null"]
 app.add_middleware(
     CORSMiddleware,
@@ -25,22 +30,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount Static & Templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# 2. Get Config from .env
+REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+
+PG_DBNAME = os.getenv("POSTGRES_DB", "feature_store")
+PG_USER = os.getenv("POSTGRES_USER", "postgres")
+PG_PASS = os.getenv("POSTGRES_PASSWORD") 
+PG_HOST = os.getenv("POSTGRES_HOST", "127.0.0.1")
+PG_PORT = os.getenv("POSTGRES_PORT", "5433")
+
+# Redis Connection
 try:
-    r = redis.Redis(host='127.0.0.1', port=6379, decode_responses=True)
+    r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
     r.ping()
     print("✅ Connected to Redis for API.")
 except Exception as e:
     print(f"❌ Could not connect to Redis: {e}")
     r = None
 
-PG_DBNAME = "feature_store"
-PG_USER = "postgres"
-PG_PASS = "Sanvi@123"
-PG_HOST = "127.0.0.1"
-PG_PORT = "5433"
     
 TRANSACTIONS_1H_KEY = "user:{user_id}:transactions_in_last_hour"
 LAST_TRANSACTION_KEY = "user:{user_id}:last_transaction_amount"
@@ -49,15 +61,17 @@ HOUR_IN_SECONDS = 3600
 def get_pg_conn():
     return psycopg2.connect(dbname=PG_DBNAME, user=PG_USER, password=PG_PASS, host=PG_HOST, port=PG_PORT)
 
-# --- HTML Routes ---
+# ==========================================
+#      FRONTEND ROUTES (HTML PAGES)
+# ==========================================
+
+# --- ADMIN PANEL ROUTES ---
 @app.get("/login", response_class=HTMLResponse)
 async def serve_login(request: Request): return templates.TemplateResponse(request=request, name="login.html")
 @app.get("/", response_class=HTMLResponse)
 async def serve_home(request: Request): return templates.TemplateResponse(request=request, name="index.html")
 @app.get("/explorer", response_class=HTMLResponse)
 async def serve_explorer(request: Request): return templates.TemplateResponse(request=request, name="explorer.html")
-@app.get("/simulator", response_class=HTMLResponse)
-async def serve_simulator(request: Request): return templates.TemplateResponse(request=request, name="simulator.html")
 @app.get("/analytics", response_class=HTMLResponse)
 async def serve_analytics(request: Request): return templates.TemplateResponse(request=request, name="analytics.html")
 @app.get("/users", response_class=HTMLResponse)
@@ -66,39 +80,31 @@ async def serve_users(request: Request): return templates.TemplateResponse(reque
 async def serve_settings(request: Request): return templates.TemplateResponse(request=request, name="settings.html")
 @app.get("/logs", response_class=HTMLResponse)
 async def serve_logs(request: Request): return templates.TemplateResponse(request=request, name="logs.html")
+
+# --- E-SHOP ROUTES ---
 @app.get("/shop", response_class=HTMLResponse)
 async def serve_shop_home(request: Request): return templates.TemplateResponse(request=request, name="shop_index.html")
 @app.get("/shop/checkout", response_class=HTMLResponse)
 async def serve_shop_checkout(request: Request): return templates.TemplateResponse(request=request, name="shop_checkout.html")
-# ... existing shop routes ...
-
-# ... inside main.py ...
-
 @app.get("/shop/login", response_class=HTMLResponse)
-async def serve_shop_login(request: Request):
-    return templates.TemplateResponse(request=request, name="shop_login.html")
-
-# ...
-
+async def serve_shop_login(request: Request): return templates.TemplateResponse(request=request, name="shop_login.html")
 @app.get("/shop/profile", response_class=HTMLResponse)
-async def serve_shop_profile(request: Request):
-    return templates.TemplateResponse(request=request, name="shop_profile.html")
+async def serve_shop_profile(request: Request): return templates.TemplateResponse(request=request, name="shop_profile.html")
 
-# ... rest of the code ...
 
-# --- API Endpoints ---
+# ==========================================
+#            API ENDPOINTS
+# ==========================================
 
 @app.post("/submit-transaction")
 async def submit_transaction(transaction: TransactionRequest):
-    if r is None:
-        raise HTTPException(status_code=503, detail="Redis service unavailable.")
+    if r is None: raise HTTPException(status_code=503, detail="Redis unavailable.")
     user_id = transaction.user_id
     amount = transaction.amount
     
     is_flagged = False
-    flag_reason = "Normal"
-
-    # 1. Fraud Check (Logic Change: We just set a flag, we don't stop it)
+    
+    # 1. Fraud Check logic
     try:
         current_avg_spend = r.get(f"user:{user_id}:historical_avg")
         if current_avg_spend is None:
@@ -113,15 +119,14 @@ async def submit_transaction(transaction: TransactionRequest):
         else:
             current_avg_spend = float(current_avg_spend)
         
-        # THE RULE: If amount is 5x average, FLAG IT.
+        # THE FRAUD RULE: Flag if > 5x Average AND > $300
         if amount > (current_avg_spend * 5) and amount > 300:
             is_flagged = True
-            flag_reason = f"Suspicious: ${amount} vs Avg ${current_avg_spend:.2f}"
             
     except Exception as e:
         print(f"Fraud check error: {e}")
 
-    # 2. Process Transaction (ALWAYS save it)
+    # 2. Process Transaction
     pg_conn = None
     pg_cur = None
     try:
@@ -129,10 +134,11 @@ async def submit_transaction(transaction: TransactionRequest):
         pg_conn.autocommit = True
         pg_cur = pg_conn.cursor()
         
-        # Insert with the new 'is_flagged' column
+        # Insert into Postgres
         sql = "INSERT INTO transactions_log (user_id, amount, timestamp, is_flagged) VALUES (%s, %s, %s, %s)"
         pg_cur.execute(sql, (user_id, amount, datetime.now(), is_flagged))
         
+        # Update Redis Features
         pipe = r.pipeline()
         pipe.set(LAST_TRANSACTION_KEY.format(user_id=user_id), amount)
         tx_1h_key = TRANSACTIONS_1H_KEY.format(user_id=user_id)
@@ -140,8 +146,7 @@ async def submit_transaction(transaction: TransactionRequest):
         pipe.expire(tx_1h_key, HOUR_IN_SECONDS)
         pipe.execute()
         
-        # ALWAYS RETURN APPROVED to the shop
-        return {"status": "Approved", "reason": "Transaction successful."}
+        return {"status": "Approved", "reason": "Order confirmed."}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
@@ -156,7 +161,6 @@ def get_global_recent_transactions():
     try:
         pg_conn = get_pg_conn()
         pg_cur = pg_conn.cursor()
-        # Select the 'is_flagged' column too
         sql = "SELECT user_id, amount, timestamp, is_flagged FROM transactions_log ORDER BY timestamp DESC LIMIT 5"
         pg_cur.execute(sql)
         transactions = pg_cur.fetchall()

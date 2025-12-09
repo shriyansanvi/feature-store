@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
 
 # 1. Load Environment Variables
 load_dotenv()
@@ -17,6 +17,9 @@ load_dotenv()
 class TransactionRequest(BaseModel):
     user_id: int
     amount: float
+
+class CouponRequest(BaseModel):
+    code: str
 
 app = FastAPI(title="Real-time Feature Store API")
 
@@ -34,26 +37,23 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# 2. Get Config from .env
+# 2. Config
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
-
 PG_DBNAME = os.getenv("POSTGRES_DB", "feature_store")
 PG_USER = os.getenv("POSTGRES_USER", "postgres")
-PG_PASS = os.getenv("POSTGRES_PASSWORD") 
+PG_PASS = os.getenv("POSTGRES_PASSWORD")
 PG_HOST = os.getenv("POSTGRES_HOST", "127.0.0.1")
 PG_PORT = os.getenv("POSTGRES_PORT", "5433")
 
-# Redis Connection
 try:
     r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
     r.ping()
-    print("✅ Connected to Redis for API.")
+    print("✅ Connected to Redis.")
 except Exception as e:
-    print(f"❌ Could not connect to Redis: {e}")
+    print(f"❌ Redis Error: {e}")
     r = None
 
-    
 TRANSACTIONS_1H_KEY = "user:{user_id}:transactions_in_last_hour"
 LAST_TRANSACTION_KEY = "user:{user_id}:last_transaction_amount"
 HOUR_IN_SECONDS = 3600
@@ -61,11 +61,7 @@ HOUR_IN_SECONDS = 3600
 def get_pg_conn():
     return psycopg2.connect(dbname=PG_DBNAME, user=PG_USER, password=PG_PASS, host=PG_HOST, port=PG_PORT)
 
-# ==========================================
-#      FRONTEND ROUTES (HTML PAGES)
-# ==========================================
-
-# --- ADMIN PANEL ROUTES ---
+# --- HTML Routes ---
 @app.get("/login", response_class=HTMLResponse)
 async def serve_login(request: Request): return templates.TemplateResponse(request=request, name="login.html")
 @app.get("/", response_class=HTMLResponse)
@@ -80,8 +76,6 @@ async def serve_users(request: Request): return templates.TemplateResponse(reque
 async def serve_settings(request: Request): return templates.TemplateResponse(request=request, name="settings.html")
 @app.get("/logs", response_class=HTMLResponse)
 async def serve_logs(request: Request): return templates.TemplateResponse(request=request, name="logs.html")
-
-# --- E-SHOP ROUTES ---
 @app.get("/shop", response_class=HTMLResponse)
 async def serve_shop_home(request: Request): return templates.TemplateResponse(request=request, name="shop_index.html")
 @app.get("/shop/checkout", response_class=HTMLResponse)
@@ -90,21 +84,39 @@ async def serve_shop_checkout(request: Request): return templates.TemplateRespon
 async def serve_shop_login(request: Request): return templates.TemplateResponse(request=request, name="shop_login.html")
 @app.get("/shop/profile", response_class=HTMLResponse)
 async def serve_shop_profile(request: Request): return templates.TemplateResponse(request=request, name="shop_profile.html")
+@app.get("/shop/product", response_class=HTMLResponse)
+async def serve_shop_product(request: Request):
+    return templates.TemplateResponse(request=request, name="shop_product.html")
 
+@app.get("/shop/about", response_class=HTMLResponse)
+async def serve_shop_about(request: Request):
+    return templates.TemplateResponse(request=request, name="shop_about.html")
 
-# ==========================================
-#            API ENDPOINTS
-# ==========================================
+# --- API Endpoints ---
+
+@app.post("/check-coupon")
+async def check_coupon(request: CouponRequest):
+    pg_conn = None
+    try:
+        pg_conn = get_pg_conn()
+        cur = pg_conn.cursor()
+        sql = "SELECT discount_percent FROM coupons WHERE code = %s AND is_active = TRUE"
+        cur.execute(sql, (request.code.upper(),))
+        result = cur.fetchone()
+        cur.close()
+        if result: return {"valid": True, "discount_percent": result[0]}
+        else: return {"valid": False, "message": "Invalid or expired code."}
+    except Exception as e: raise HTTPException(status_code=500, detail=f"DB Error: {e}")
+    finally:
+        if pg_conn: pg_conn.close()
 
 @app.post("/submit-transaction")
 async def submit_transaction(transaction: TransactionRequest):
     if r is None: raise HTTPException(status_code=503, detail="Redis unavailable.")
     user_id = transaction.user_id
     amount = transaction.amount
-    
     is_flagged = False
     
-    # 1. Fraud Check logic
     try:
         current_avg_spend = r.get(f"user:{user_id}:historical_avg")
         if current_avg_spend is None:
@@ -119,103 +131,115 @@ async def submit_transaction(transaction: TransactionRequest):
         else:
             current_avg_spend = float(current_avg_spend)
         
-        # THE FRAUD RULE: Flag if > 5x Average AND > $300
         if amount > (current_avg_spend * 5) and amount > 300:
             is_flagged = True
-            
-    except Exception as e:
-        print(f"Fraud check error: {e}")
+    except Exception as e: print(f"Fraud check error: {e}")
 
-    # 2. Process Transaction
     pg_conn = None
-    pg_cur = None
     try:
         pg_conn = get_pg_conn()
         pg_conn.autocommit = True
-        pg_cur = pg_conn.cursor()
-        
-        # Insert into Postgres
+        cur = pg_conn.cursor()
         sql = "INSERT INTO transactions_log (user_id, amount, timestamp, is_flagged) VALUES (%s, %s, %s, %s)"
-        pg_cur.execute(sql, (user_id, amount, datetime.now(), is_flagged))
-        
-        # Update Redis Features
+        cur.execute(sql, (user_id, amount, datetime.now(), is_flagged))
         pipe = r.pipeline()
         pipe.set(LAST_TRANSACTION_KEY.format(user_id=user_id), amount)
         tx_1h_key = TRANSACTIONS_1H_KEY.format(user_id=user_id)
         pipe.incr(tx_1h_key)
         pipe.expire(tx_1h_key, HOUR_IN_SECONDS)
         pipe.execute()
-        
         return {"status": "Approved", "reason": "Order confirmed."}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+    except Exception as e: raise HTTPException(status_code=500, detail=f"Database Error: {e}")
     finally:
-        if pg_cur: pg_cur.close()
         if pg_conn: pg_conn.close()
 
-@app.get("/transactions/recent/global")
-def get_global_recent_transactions():
+@app.get("/api/logs")
+def get_system_logs():
     pg_conn = None
-    pg_cur = None
     try:
         pg_conn = get_pg_conn()
-        pg_cur = pg_conn.cursor()
-        sql = "SELECT user_id, amount, timestamp, is_flagged FROM transactions_log ORDER BY timestamp DESC LIMIT 5"
-        pg_cur.execute(sql)
-        transactions = pg_cur.fetchall()
-        return {"recent_transactions": [{"user_id": row[0], "amount": row[1], "timestamp": row[2], "is_flagged": row[3]} for row in transactions]}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"PostgreSQL error: {e}")
+        cur = pg_conn.cursor()
+        cur.execute("SELECT event_time, severity, message FROM audit_logs ORDER BY event_time DESC LIMIT 20")
+        logs = cur.fetchall()
+        cur.close()
+        return {"logs": [{"timestamp": row[0], "level": row[1], "message": row[2]} for row in logs]}
+    except Exception as e: return {"logs": [{"timestamp": "", "level": "ERROR", "message": str(e)}]}
     finally:
-        if pg_cur: pg_cur.close()
         if pg_conn: pg_conn.close()
 
 @app.get("/stats/global")
 def get_global_stats():
     pg_conn = None
-    pg_cur = None
     try:
         pg_conn = get_pg_conn()
-        pg_cur = pg_conn.cursor()
-        pg_cur.execute("SELECT COUNT(*), SUM(amount) FROM transactions_log")
-        stats = pg_cur.fetchone()
-        pg_cur.execute("SELECT COUNT(*) FROM user_historical_features")
-        user_count = pg_cur.fetchone()
+        cur = pg_conn.cursor()
+        # Use Stored Procedure if available, otherwise raw SQL
+        try:
+            cur.callproc('get_dashboard_metrics')
+            result = cur.fetchone()
+            stats = (result[0], result[1]) # count, sum
+            user_count = (result[2],) # users
+        except Exception:
+            # Fallback to raw SQL if procedure doesn't exist
+            pg_conn.rollback()
+            cur.execute("SELECT COUNT(*), SUM(amount) FROM transactions_log")
+            stats = cur.fetchone()
+            cur.execute("SELECT COUNT(*) FROM user_historical_features")
+            user_count = cur.fetchone()
+            
         return {"total_transactions": stats[0] or 0, "total_volume": stats[1] or 0, "total_users": user_count[0] or 0}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"PostgreSQL error: {e}")
+    except Exception: return {"total_transactions": 0, "total_volume": 0, "total_users": 0}
     finally:
-        if pg_cur: pg_cur.close()
+        if pg_conn: pg_conn.close()
+
+@app.get("/transactions/recent/global")
+def get_global_recent_transactions():
+    pg_conn = None
+    try:
+        pg_conn = get_pg_conn()
+        cur = pg_conn.cursor()
+        sql = "SELECT user_id, amount, timestamp, is_flagged FROM transactions_log ORDER BY timestamp DESC LIMIT 5"
+        cur.execute(sql)
+        transactions = cur.fetchall()
+        return {"recent_transactions": [{"user_id": row[0], "amount": row[1], "timestamp": row[2], "is_flagged": row[3]} for row in transactions]}
+    except Exception: return {"recent_transactions": []}
+    finally:
         if pg_conn: pg_conn.close()
 
 @app.get("/features/{user_id}")
 def get_real_time_features(user_id: int):
-    if r is None: raise HTTPException(status_code=503, detail="Redis unavailable.")
+    if r is None: return {}
     try:
         pipe = r.pipeline()
         pipe.get(LAST_TRANSACTION_KEY.format(user_id=user_id))
         pipe.get(TRANSACTIONS_1H_KEY.format(user_id=user_id))
         results = pipe.execute()
-        last_amount = results[0]
-        count_1h = results[1]
-        return {"user_id": user_id, "retrieved_at": datetime.now(), "real_time_features": {"last_transaction_amount": float(last_amount) if last_amount else 0.0, "transactions_in_last_hour": int(count_1h) if count_1h else 0}}
-    except Exception as e: raise HTTPException(status_code=500, detail=f"Error: {e}")
+        return {"user_id": user_id, "retrieved_at": datetime.now(), "real_time_features": {"last_transaction_amount": float(results[0]) if results[0] else 0.0, "transactions_in_last_hour": int(results[1]) if results[1] else 0}}
+    except Exception: return {}
 
+# --- FIXED: Historical Features Endpoint ---
 @app.get("/features/historical/{user_id}")
 def get_historical_features(user_id: int):
     pg_conn = None
+    res = None
     try:
         pg_conn = get_pg_conn()
         cur = pg_conn.cursor()
         cur.execute("SELECT total_spent, average_transaction_amount FROM user_historical_features WHERE user_id = %s", (user_id,))
         res = cur.fetchone()
         cur.close()
-        if res: return {"user_id": user_id, "historical_features": {"total_spent": res[0], "average_transaction_amount": res[1]}}
-        else: raise HTTPException(status_code=404, detail="User not found")
-    except Exception as e: raise HTTPException(status_code=500, detail=f"Error: {e}")
+    except Exception as e:
+        # This catches DATABASE errors (500)
+        raise HTTPException(status_code=500, detail=f"DB Error: {e}")
     finally:
         if pg_conn: pg_conn.close()
+
+    # Check the result OUTSIDE the try/except block
+    if res:
+        return {"user_id": user_id, "historical_features": {"total_spent": res[0], "average_transaction_amount": res[1]}}
+    else:
+        # This returns 404 correctly
+        raise HTTPException(status_code=404, detail="User not found")
 
 @app.get("/transactions/all/{user_id}")
 def get_all_transactions(user_id: int):
@@ -227,7 +251,7 @@ def get_all_transactions(user_id: int):
         res = cur.fetchall()
         cur.close()
         return {"user_id": user_id, "transactions": [{"amount": row[0], "timestamp": row[1]} for row in res]}
-    except Exception as e: raise HTTPException(status_code=500, detail=f"Error: {e}")
+    except Exception: return {"transactions": []}
     finally:
         if pg_conn: pg_conn.close()
 
@@ -237,21 +261,32 @@ def get_all_analytics():
     try:
         pg_conn = get_pg_conn()
         cur = pg_conn.cursor()
-        cur.execute("SELECT date_trunc('day', timestamp) AS sales_day, SUM(amount) AS total_sales FROM transactions_log GROUP BY sales_day ORDER BY sales_day;")
+        
+        # --- NEW: Refresh the View (Simulating a nightly job) ---
+        # In real life, you'd do this once a day, but for the demo, we do it here
+        # so you see new data instantly.
+        cur.execute("REFRESH MATERIALIZED VIEW daily_sales_summary;")
+        
+        # --- NEW: Query the View (FAST) ---
+        sales_sql = "SELECT sales_day, total_sales FROM daily_sales_summary ORDER BY sales_day;"
+        cur.execute(sales_sql)
         sales = cur.fetchall()
-        cur.execute("SELECT user_id, SUM(amount) AS total_spent FROM transactions_log GROUP BY user_id ORDER BY total_spent DESC LIMIT 10;")
+        
+        # (Keep the Top Spenders query as is, or index it too)
+        spenders_sql = "SELECT user_id, SUM(amount) AS total_spent FROM transactions_log GROUP BY user_id ORDER BY total_spent DESC LIMIT 10;"
+        cur.execute(spenders_sql)
         spenders = cur.fetchall()
+        
         cur.close()
         return {"sales_over_time": [{"day": row[0], "sales": row[1]} for row in sales], "top_spenders": [{"user_id": row[0], "total": row[1]} for row in spenders]}
     except Exception as e: raise HTTPException(status_code=500, detail=f"Error: {e}")
     finally:
         if pg_conn: pg_conn.close()
 
-# CSV Route
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV_FILE_PATH = os.path.join(BASE_DIR, "transactions.csv")
 @app.get("/analytics/from-csv")
 def get_csv_analytics():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    CSV_FILE_PATH = os.path.join(BASE_DIR, "transactions.csv")
     data = []
     try:
         with open(CSV_FILE_PATH, 'r', encoding='utf-8') as f:

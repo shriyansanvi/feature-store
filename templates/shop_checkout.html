@@ -14,10 +14,11 @@
     </div>
 
     <div class="shop-container checkout-wrapper">
+        <!-- Left Column: Details -->
         <div class="checkout-details">
             <div class="checkout-card">
                 <h2 style="margin-top:0;">Shipping & Payment</h2>
-                
+                <p style="color:#666; margin-bottom:20px;">Secure 256-bit SSL Encrypted.</p>
                 
                 <div class="form-group">
                     <label>Email Address</label>
@@ -32,6 +33,7 @@
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                     <div class="form-group">
                         <label>User ID (Hidden Simulation)</label>
+                        <!-- Auto-filled, Read-only -->
                         <input type="number" id="user_id" readonly style="background:#f9f9f9; color:#777;">
                     </div>
                     <div class="form-group">
@@ -48,20 +50,40 @@
             </div>
         </div>
 
+        <!-- Right Column: Order Summary -->
         <div class="checkout-summary">
             <div class="checkout-card" style="background:#fcfcfc;">
                 <h3 style="margin-top:0;">Order Summary</h3>
                 <div id="checkout-items" style="border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:15px;">
-                    </div>
+                    <!-- Items go here -->
+                </div>
                 
                 <div class="summary-row">
                     <span>Subtotal</span>
                     <span id="checkout-subtotal">$0.00</span>
                 </div>
+                
+                <!-- Discount Section (Hidden by default) -->
+                <div id="discount-row" class="summary-row discount-row" style="display:none;">
+                    <span>Discount</span>
+                    <span id="discount-amount">-$0.00</span>
+                </div>
+
                 <div class="summary-row">
                     <span>Shipping</span>
                     <span>Free</span>
                 </div>
+                
+                <!-- Coupon Input Section -->
+                <div class="coupon-section">
+                    <label style="font-size:0.85em; font-weight:bold;">Gift Card or Discount Code</label>
+                    <div class="coupon-input-group">
+                        <input type="text" id="coupon-code" placeholder="Try 'SAVE20'">
+                        <button class="apply-btn" id="apply-coupon">Apply</button>
+                    </div>
+                    <span id="coupon-msg" class="coupon-msg"></span>
+                </div>
+
                 <div class="summary-total">
                     <span>Total</span>
                     <span id="checkout-total">$0.00</span>
@@ -71,6 +93,7 @@
     </div>
 
     <script src="/static/shop_core.js"></script>
-    <script src="/static/shop_checkout.js?v=100"></script>
+    <!-- Updated version number to force reload -->
+    <script src="/static/shop_checkout.js?version=FINAL_FIX_PLEASE_WORK"></script>
 </body>
 </html>

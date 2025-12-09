@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details - ModernStore</title>
+    <link rel="stylesheet" href="/static/shop_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Cart Sidebar (Same as Index) -->
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <i class="fas fa-times close-cart" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row"><span>Subtotal</span><span id="cart-total">$0.00</span></div>
+            <a href="/shop/checkout" class="checkout-btn">Checkout Now</a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="shop-header">
+        <div class="shop-container header-inner">
+            <a href="/shop" class="shop-logo">ModernStore.</a>
+            <nav class="shop-nav">
+                <a href="/shop">Home</a>
+                <a href="/shop/about">About Us</a>
+            </nav>
+            <div class="header-icons">
+                <div class="cart-icon-wrap" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Product Detail Section -->
+    <main class="shop-container" style="margin-top: 40px; margin-bottom: 60px;">
+        <div class="product-detail-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px;">
+            
+            <!-- Left: Image -->
+            <div class="detail-image">
+                <img id="detail-img" src="" alt="Product" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
+            </div>
+
+            <!-- Right: Info -->
+            <div class="detail-info">
+                <div id="detail-category" style="color: #999; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; margin-bottom: 10px;">Category</div>
+                <h1 id="detail-title" style="font-size: 2.5em; margin: 0 0 20px 0;">Product Name</h1>
+                <div class="product-rating" style="margin-bottom: 20px;">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> 
+                    <span>(4.9)</span>
+                </div>
+                <div id="detail-price" style="font-size: 2em; font-weight: bold; color: #007bff; margin-bottom: 20px;">$0.00</div>
+                
+                <p style="color: #666; line-height: 1.7; margin-bottom: 30px;">
+                    This premium product is designed for those who appreciate quality and performance. 
+                    Featuring state-of-the-art materials and a sleek design, it's the perfect addition to your collection.
+                    Includes a standard 1-year warranty and 30-day return policy.
+                </p>
+
+                <button id="add-to-cart-btn" class="checkout-btn" style="max-width: 250px;">Add to Cart</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/static/shop_core.js"></script>
+    <script>
+        // --- Inline Script to Load Data from URL ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const name = urlParams.get('name');
+        const price = parseFloat(urlParams.get('price'));
+        const img = urlParams.get('img');
+        const category = urlParams.get('cat') || 'General';
+
+        // Populate Page
+        document.getElementById('detail-title').textContent = name;
+        document.getElementById('detail-price').textContent = `$${price.toFixed(2)}`;
+        document.getElementById('detail-img').src = img;
+        document.getElementById('detail-category').textContent = category;
+
+        // Bind Add to Cart
+        document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+            addToCart(name, price);
+        });
+    </script>
+</body>
+</html>

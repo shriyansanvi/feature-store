@@ -2,10 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Auth script -->
     <script src="/static/auth.js"></script>
+    
     <title>Admin - Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- IMPORTANT: Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="sidebar">
@@ -41,6 +46,14 @@
                 <p id="stats-total-users">0</p>
             </div>
         </div>
+
+        <!-- Live Chart Section -->
+        <div class="card" style="margin-top: 20px;">
+            <h3><i class="fas fa-chart-line"></i> Real-time Traffic</h3>
+            <div style="height: 300px;">
+                <canvas id="liveChart"></canvas>
+            </div>
+        </div>
         
         <h2 style="margin-top: 30px;">Live Transaction Feed</h2>
         <div class="card">
@@ -50,56 +63,7 @@
         </div>
     </main>
     
-    <script>
-        const API_BASE_URL = "http://127.0.0.1:8000";
-        const totalTxEl = document.getElementById('stats-total-tx');
-        const totalVolEl = document.getElementById('stats-total-vol');
-        const totalUsersEl = document.getElementById('stats-total-users');
-        const globalLogEl = document.getElementById('global-log');
-
-        async function getGlobalStats() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/stats/global`);
-                if (!response.ok) throw new Error("Stats API failed");
-                const data = await response.json();
-                totalTxEl.textContent = data.total_transactions.toLocaleString();
-                totalVolEl.textContent = `$${data.total_volume.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                totalUsersEl.textContent = data.total_users.toLocaleString();
-            } catch (error) { console.error(error); }
-        }
-
-        async function getRecentTransactions() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/transactions/recent/global`);
-                if (!response.ok) throw new Error("Recent Tx API failed");
-                const data = await response.json();
-                globalLogEl.innerHTML = ""; 
-                if (data.recent_transactions.length === 0) {
-                    globalLogEl.innerHTML = "<li>No transactions yet.</li>";
-                    return;
-                }
-                data.recent_transactions.forEach(tx => {
-                    const li = document.createElement('li');
-                    const txTime = new Date(tx.timestamp).toLocaleTimeString();
-                    let statusHtml = '';
-                    let rowStyle = '';
-                    if (tx.is_flagged) {
-                        rowStyle = 'background-color: #ffe6e6; border-left: 5px solid red;'; 
-                        statusHtml = `<span style="color: red; font-weight: bold; margin-left: 10px;">⚠️ FLAG: HIGH RISK</span>`;
-                    }
-                    li.style.cssText = rowStyle;
-                    li.innerHTML = `<strong>User ${tx.user_id}</strong> paid <span style="color: green; font-weight: bold;">$${parseFloat(tx.amount).toFixed(2)}</span> at ${txTime} ${statusHtml}`;
-                    globalLogEl.appendChild(li);
-                });
-            } catch (error) { console.error(error); }
-        }
-
-        window.addEventListener('load', () => {
-            getGlobalStats();
-            getRecentTransactions();
-            setInterval(getGlobalStats, 5000);
-            setInterval(getRecentTransactions, 2000);
-        });
-    </script>
+    <!-- Add version parameter to force reload -->
+    <script src="/static/index.js?v=999"></script>
 </body>
 </html>

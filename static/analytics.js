@@ -78,3 +78,33 @@ async function loadAnalytics() {
 
 // Load data when the page opens
 window.addEventListener('load', loadAnalytics);
+
+// --- NEW: Export to CSV Function ---
+function downloadCSV() {
+    const rows = [];
+    const table = document.getElementById("spenders-table");
+    
+    // 1. Get Headers
+    const headers = [];
+    table.querySelectorAll("thead td").forEach(th => headers.push(th.innerText));
+    rows.push(headers.join(","));
+    
+    // 2. Get Data
+    table.querySelectorAll("tbody tr").forEach(tr => {
+        const rowData = [];
+        tr.querySelectorAll("td").forEach(td => rowData.push(td.innerText));
+        rows.push(rowData.join(","));
+    });
+    
+    // 3. Create File
+    const csvContent = "data:text/csv;charset=utf-8," + rows.join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "top_spenders_report.csv");
+    document.body.appendChild(link);
+    
+    // 4. Download
+    link.click();
+    document.body.removeChild(link);
+}

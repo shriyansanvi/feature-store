@@ -4,8 +4,28 @@
     <meta charset="UTF-8">
     <title>Checkout - ModernStore</title>
     <link rel="stylesheet" href="/static/shop_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    
+    <!-- === SECURITY CHALLENGE MODAL === -->
+    <div class="modal-overlay" id="security-modal">
+        <div class="security-card">
+            <div class="security-header">
+                <i class="fas fa-shield-alt"></i> Security Alert
+            </div>
+            <div class="security-body">
+                <h3>Unusual Activity Detected</h3>
+                <p>We noticed a transaction that is significantly higher than your average spending history. For your protection, please confirm this is you.</p>
+                <div class="security-actions">
+                    <button id="btn-deny" class="sec-btn deny">No, Cancel</button>
+                    <button id="btn-verify" class="sec-btn verify">Yes, It's Me</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================================= -->
+
     <div class="shop-header" style="background:#fff;">
         <div class="shop-container header-inner">
             <a href="/shop" class="shop-logo">ModernStore.</a>
@@ -24,7 +44,6 @@
                     <label>Email Address</label>
                     <input type="email" value="user@example.com">
                 </div>
-                
                 <div class="form-group">
                     <label>Shipping Address</label>
                     <input type="text" value="123 Tech Street, Silicon Valley">
@@ -33,7 +52,6 @@
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                     <div class="form-group">
                         <label>User ID (Hidden Simulation)</label>
-                        <!-- Auto-filled, Read-only -->
                         <input type="number" id="user_id" readonly style="background:#f9f9f9; color:#777;">
                     </div>
                     <div class="form-group">
@@ -63,7 +81,7 @@
                     <span id="checkout-subtotal">$0.00</span>
                 </div>
                 
-                <!-- Discount Section (Hidden by default) -->
+                <!-- Discount Row (Hidden until active) -->
                 <div id="discount-row" class="summary-row discount-row" style="display:none;">
                     <span>Discount</span>
                     <span id="discount-amount">-$0.00</span>
@@ -74,7 +92,7 @@
                     <span>Free</span>
                 </div>
                 
-                <!-- Coupon Input Section -->
+                <!-- Coupon Input -->
                 <div class="coupon-section">
                     <label style="font-size:0.85em; font-weight:bold;">Gift Card or Discount Code</label>
                     <div class="coupon-input-group">
@@ -92,8 +110,8 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="/static/shop_core.js"></script>
-    <!-- Updated version number to force reload -->
-    <script src="/static/shop_checkout.js?version=FINAL_FIX_PLEASE_WORK"></script>
+    <script src="/static/shop_checkout.js?v=999"></script>
 </body>
 </html>
